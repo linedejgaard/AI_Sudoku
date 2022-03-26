@@ -27,13 +27,29 @@ public class SudokuSolver implements ISudokuSolver {
 		D = new ArrayList<ArrayList<Integer>>(size*size*size*size); //This arraylist contains the domains (incl. variables) OR values entered the square
 		
 		//Initialize each D[X]...
-		
+		InitializeD();
+
 
 		
 	}
 
+	private void InitializeD() {
+		int variables = puzzle.length * puzzle.length;
+		
+		for (int i = 0; i < variables; i++) {
+			ArrayList<Integer> possibleValues = new ArrayList<>(puzzle.length);
+			
+			for (int value = 1; value < puzzle.length + 1; value++) { //add possible values (from 1 to puzzle length)
+				possibleValues.add(value);
+			}
+
+			D.add(possibleValues);
+		}
+	}
+
 
 	public boolean solve() {
+		System.out.println("START!");
 		ArrayList<Integer> asn = GetAssignment(puzzle);
 		
 		//INITIAL_FC
@@ -41,7 +57,7 @@ public class SudokuSolver implements ISudokuSolver {
 
 		//FC
 		FC(asn);
-
+		System.out.println("END!");
 		return true;
 	}
 
@@ -75,7 +91,7 @@ public class SudokuSolver implements ISudokuSolver {
 
 			ArrayList<ArrayList<Integer>> Dold = getCopyOfD(); //save D now, since we manipulate D
 
-			for (int V : D.get(X)) {
+			for (int V : D.get(X)) { //try out each value in the domain
 				if(AC_FC(X, V)) {
 					asn.add(X,V); //asn[X] <- V : try value V
 					ArrayList R = FC(asn);
@@ -171,7 +187,7 @@ public class SudokuSolver implements ISudokuSolver {
 		//				REVISE 
 		//------------------------------------------------------------------
 		public boolean REVISE(int Xi, int Xj){
-			Integer zero = new Integer(0);
+			Integer zero = 0;
 			
 			assert(Xi >= 0 && Xj >=0);
 			assert(Xi < size*size*size*size && Xj <size*size*size*size);
@@ -376,11 +392,11 @@ public class SudokuSolver implements ISudokuSolver {
 			ArrayList<Integer> asn = new ArrayList<Integer>();
 			for (int i=0; i<size*size; i++) {
 				for (int j=0; j<size*size; j++) {
-					asn.add(GetVariable(i,j), new Integer(p[i][j]));
+					asn.add(GetVariable(i,j), p[i][j]);
 					if (p[i][j] != 0){
 							//restrict domain
 							D.get(GetVariable(i,j)).clear();
-							D.get(GetVariable(i,j)).add(new Integer(p[i][j]));
+							D.get(GetVariable(i,j)).add(p[i][j]);
 						}
 				}
 			}
