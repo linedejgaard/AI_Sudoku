@@ -15,12 +15,20 @@ public class SudokuSolver implements ISudokuSolver {
 		puzzle[col][row] = value;
 	}
 
+	public void readInPuzzle(int[][] p) {
+		if (checkDiamentions(p)) {
+			puzzle = p;
+		}		
+	}
+
 	public void setup(int size1) {
 		size = size1;
 		puzzle = new int[size*size][size*size];
-		D = new ArrayList<ArrayList<Integer>>(size*size*size*size);
+		D = new ArrayList<ArrayList<Integer>>(size*size*size*size); //This arraylist contains the domains (incl. variables) OR values entered the square
 		
 		//Initialize each D[X]...
+		
+
 		
 	}
 
@@ -29,22 +37,66 @@ public class SudokuSolver implements ISudokuSolver {
 		ArrayList<Integer> asn = GetAssignment(puzzle);
 		
 		//INITIAL_FC
+		INITIAL_FC(asn); //returns true if asn is consistent afterwards
+
 		//FC
+		FC(asn);
 
 		return true;
 	}
 
-	public void readInPuzzle(int[][] p) {
-		puzzle = p;
+
+	private boolean checkDiamentions(int[][] p) {
+		return puzzle.length == p.length;
 	}
-	
-	
+
+	private ArrayList<ArrayList<Integer>> getCopyOfD() {
+		ArrayList<ArrayList<Integer>> result = new ArrayList<>(D.size());
+
+		for (ArrayList<Integer> arrayList : D) {
+			ArrayList<Integer> newArrayList = new ArrayList<>(arrayList.size());
+			newArrayList.addAll(arrayList);
+			result.add(newArrayList);
+		}
+		
+		return result;
+	}
+
 		//---------------------------------------------------------------------------------
 		//YOUR TASK:  Implement FC(asn)
 		//---------------------------------------------------------------------------------
 		public ArrayList FC(ArrayList<Integer> asn) {
-	
+			if (!asn.contains(0)) {
+				return asn;
+			}
+
+			//first index of element that has no value assigned
+			int X = getIndexIfFirst0InASN(asn);
+
+			ArrayList<ArrayList<Integer>> Dold = getCopyOfD(); //save D now, since we manipulate D
+
+			for (int V : D.get(X)) {
+				if(AC_FC(X, V)) {
+					asn.add(X,V); //asn[X] <- V : try value V
+					ArrayList R = FC(asn);
+					if(R != null) {
+						return R;
+					}
+					asn.add(X,0); //asn[X] <- 0 : set it back
+					D = Dold; //set it back
+				}
+				else D = Dold;
+			}
+			
+
 			return null;//failure
+		}
+
+		private Integer getIndexIfFirst0InASN(ArrayList<Integer> asn) {
+			for (int i = 0; i < asn.size(); i++) {
+				if(asn.get(i) == 0) return i;
+			}
+			return 0;
 		}
 
 	
