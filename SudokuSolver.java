@@ -87,7 +87,6 @@ public class SudokuSolver implements ISudokuSolver {
 		}
 	}
 
-
 	private boolean checkDiamentions(int[][] p) {
 		return puzzle.length == p.length;
 	}
@@ -170,10 +169,6 @@ public class SudokuSolver implements ISudokuSolver {
 		return getVeryHardPuzzle();
 	}
 
-	
-
-
-
 
 		//---------------------------------------------------------------------------------
 		//YOUR TASK:  Implement FC(asn)
@@ -184,21 +179,21 @@ public class SudokuSolver implements ISudokuSolver {
 				return asn;
 			}
 
-			//first index of element that has no value assigned
+			//first index of element that has no value assigned: this uses indexOf, but since we've already checked if there is no 0, there must be an index
 			int X = getIndexIfFirst0InASN(asn);
 
-			ArrayList<ArrayList<Integer>> Dold = getCopyOfD(); //save D now, since we manipulate D
+			ArrayList<ArrayList<Integer>> Dold = getCopyOfD(); //save D now, since we manipulate D, and then we want to set it back to the "old" one, when we loop
 
 			for (int V : getCopyOfDX(X)) { //try out each value in the domain //Copy of DX, since we change D while we loop
 				if(AC_FC(X, V)) {
 					asn.set(X,V); //asn[X] <- V : try value V
-					ArrayList R = FC(asn);
-					if(R != null) {
+					ArrayList R = FC(asn); //call FC again after we've changed the value //this makes it a depth first search...
+					if(R != null) { //if R is not a failure (is not null), then just return R, else continue in the loop by setting the value back, and trying another value in D
 						return R;
 					}
-					asn.set(X,0); //asn[X] <- 0 : set it back
+					asn.set(X,0); //asn[X] <- 0 : set it back //if R is null/a failure
 				}
-				D = getCopy(Dold); //set it back
+				D = getCopy(Dold); //set it back D, since we've deleted all values except from V in DX by calling AC_FC(X,V) - this checks if setting the value V makes it arc consistent.
 			}
 			return null;//failure
 		}
