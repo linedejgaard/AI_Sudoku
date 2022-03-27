@@ -29,17 +29,7 @@ public class SudokuSolver implements ISudokuSolver {
 		//Initialize each D[X]...
 		InitializeD();
 
-		int[][] easy   = {{0, 3, 0, 0, 8, 0, 0, 0, 6},
-              {5, 0, 0, 2, 9, 4, 7, 1, 0},
-              {0, 0, 0, 3, 0, 0, 5, 0, 0},
-              {0, 0, 5, 0, 1, 0, 8, 0, 4},
-              {4, 2, 0, 8, 0, 5, 0, 3, 9},
-              {1, 0, 8, 0, 3, 0, 6, 0, 0},
-              {0, 0, 3, 0, 0, 7, 0, 0, 0},
-              {0, 4, 1, 6, 5, 3, 0, 0, 2},
-              {2, 0, 0, 0, 4, 0, 0, 6, 0}};
-
-		puzzle = easy;
+		puzzle = getPuzzle(0); //0 = easy, 1 = middle, 2 = hard, 2+ veryhard //can also be uncommented, if you want to type in a sudoku yourself.
 		
 	}
 
@@ -59,7 +49,6 @@ public class SudokuSolver implements ISudokuSolver {
 
 
 	public boolean solve() {
-		System.out.println("START!");
 		ArrayList<Integer> asn = GetAssignment(puzzle);
 
 		deleteInDomainsINIT(asn); 
@@ -73,15 +62,15 @@ public class SudokuSolver implements ISudokuSolver {
 		//FC
 		ArrayList<Integer> fc = FC(asn);
 		if(FCisSucceeded(fc)) {
-			System.out.println("EEND!");
+			puzzle = GetPuzzle(fc);
 			return true;
 		}
 
-		//FIND OUT WHAT AN ASN IS, AND HOW TO LOOP OG CONTINUE DOING FC OR RETURN FALSE???
-		System.out.println("END!");
 		return false;
 	}
 
+
+	//HELP FUNCTIONS
 	private boolean FCisSucceeded(ArrayList<Integer> fc) {
 		return fc != null;
 	}
@@ -103,35 +92,127 @@ public class SudokuSolver implements ISudokuSolver {
 		return puzzle.length == p.length;
 	}
 
-	private ArrayList<ArrayList<Integer>> getCopyOfD() {
-		ArrayList<ArrayList<Integer>> result = new ArrayList<>(D.size());
+	private ArrayList<ArrayList<Integer>> getCopyOfD() {		
+		return getCopy(D);
+	}
 
-		for (ArrayList<Integer> arrayList : D) {
-			ArrayList<Integer> newArrayList = new ArrayList<>(arrayList.size());
-			newArrayList.addAll(arrayList);
-			result.add(newArrayList);
+	private ArrayList<ArrayList<Integer>> getCopy(ArrayList<ArrayList<Integer>> currentD) {
+		ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+			
+		for (int i = 0 ; i < currentD.size() ; i++) {
+			ArrayList<Integer> temp = new ArrayList<Integer>();
+			for (int value : currentD.get(i)) {
+				temp.add(value);
+			}
+			result.add(temp);
 		}
-		
 		return result;
 	}
 
-	private ArrayList<ArrayList<Integer>> getCopy(ArrayList<ArrayList<Integer>> current) {
-		ArrayList<ArrayList<Integer>> result = new ArrayList<>(current.size());
-
-		for (ArrayList<Integer> arrayList : current) {
-			ArrayList<Integer> newArrayList = new ArrayList<>(arrayList.size());
-			newArrayList.addAll(arrayList);
-			result.add(newArrayList);
-		}
-		
-		return result;
+	//Puzzles taken from https://github.com/benselby/CS686/blob/master/assignment1/sudoku.py
+	private int[][] getEasyPuzzle(){
+		int[][] easy   = {{0, 3, 0, 0, 8, 0, 0, 0, 6},
+		{5, 0, 0, 2, 9, 4, 7, 1, 0},
+		{0, 0, 0, 3, 0, 0, 5, 0, 0},
+		{0, 0, 5, 0, 1, 0, 8, 0, 4},
+		{4, 2, 0, 8, 0, 5, 0, 3, 9},
+		{1, 0, 8, 0, 3, 0, 6, 0, 0},
+		{0, 0, 3, 0, 0, 7, 0, 0, 0},
+		{0, 4, 1, 6, 5, 3, 0, 0, 2},
+		{2, 0, 0, 0, 4, 0, 0, 6, 0}};
+		return easy;
 	}
+
+	private int[][] getMediumPuzzle(){
+		int[][] medium = {{3, 0, 8, 2, 9, 6, 0, 0, 0},
+		{0, 4, 0, 0, 0, 8, 0, 0, 0},
+		{5, 0, 2, 1, 0, 0, 0, 8, 7},
+		{0, 1, 3, 0, 0, 0, 0, 0, 0},
+		{7, 8, 0, 0, 0, 0, 0, 3, 5},
+		{0, 0, 0, 0, 0, 0, 4, 1, 0},
+		{1, 2, 0, 0, 0, 7, 8, 0, 3},
+		{0, 0, 0, 8, 0, 0, 0, 2, 0},
+		{0, 0, 0, 5, 4, 2, 1, 0, 6}};
+
+		return medium;
+	}
+
+	private int[][] getHardPuzzle(){
+		int[][] hard = {{7, 0, 0, 0, 0, 0, 0, 0, 0},
+		{6, 0, 0, 4, 1, 0, 2, 5, 0},
+		{0, 1, 3, 0, 9, 5, 0, 0, 0},
+		{8, 6, 0, 0, 0, 0, 0, 0, 0},
+		{3, 0, 1, 0, 0, 0, 4, 0, 5},
+		{0, 0, 0, 0, 0, 0, 0, 8, 6},
+		{0, 0, 0, 8, 4, 0, 5, 3, 0},
+		{0, 4, 2, 0, 3, 6, 0, 0, 7},
+		{0, 0, 0, 0, 0, 0, 0, 0, 9}};
+		return hard;
+	}
+
+	private int[][] getVeryHardPuzzle(){
+		int[][] veryhard = {{0, 6, 0, 8, 0, 0, 0, 0, 0},
+		{0, 0, 4, 0, 6, 0, 0, 0, 9},
+		{1, 0, 0, 0, 4, 3, 0, 6, 0},
+		{0, 5, 2, 0, 0, 0, 0, 0, 0},
+		{0, 0, 8, 6, 0, 9, 3, 0, 0},
+		{0, 0, 0, 0, 0, 0, 5, 7, 0},
+		{0, 1, 0, 4, 8, 0, 0, 0, 5},
+		{8, 0, 0, 0, 1, 0, 2, 0, 0},
+		{0, 0, 0, 0, 0, 5, 0, 4, 0}};
+		return veryhard;
+	}
+
+	private int[][] getPuzzle(int difficulty) {
+		if (difficulty == 0) return getEasyPuzzle();
+		if (difficulty == 1) return getMediumPuzzle();
+		if (difficulty == 2) return getHardPuzzle();
+		return getVeryHardPuzzle();
+	}
+
+	
+
+
+
 
 		//---------------------------------------------------------------------------------
 		//YOUR TASK:  Implement FC(asn)
 		//---------------------------------------------------------------------------------
 
-		
+		public ArrayList FC(ArrayList<Integer> asn) {
+			if (!asn.contains(0)) {
+				return asn;
+			}
+
+			//first index of element that has no value assigned
+			int X = getIndexIfFirst0InASN(asn);
+
+			ArrayList<ArrayList<Integer>> Dold = getCopyOfD(); //save D now, since we manipulate D
+
+			for (int V : getCopyOfDX(X)) { //try out each value in the domain //Copy of DX, since we change D while we loop
+				if(AC_FC(X, V)) {
+					asn.set(X,V); //asn[X] <- V : try value V
+					ArrayList R = FC(asn);
+					if(R != null) {
+						return R;
+					}
+					asn.set(X,0); //asn[X] <- 0 : set it back
+				}
+				D = getCopy(Dold); //set it back
+			}
+			return null;//failure
+		}
+
+		private ArrayList<Integer> getCopyOfDX(int X) {
+			ArrayList<Integer> copyDX = new ArrayList<>(D.get(X).size());
+			copyDX.addAll(D.get(X));
+			return copyDX;
+		}
+
+		private Integer getIndexIfFirst0InASN(ArrayList<Integer> asn) {
+			return asn.indexOf(0);
+		}
+
 		//---------------------------------------------------------------------------------
 		// CODE SUPPORT FOR IMPLEMENTING FC(asn)
 		//
@@ -143,37 +224,7 @@ public class SudokuSolver implements ISudokuSolver {
 		//
 		//---------------------------------------------------------------------------------
 		
-		public ArrayList FC(ArrayList<Integer> asn) {
-			if (!asn.contains(0)) {
-				return asn;
-			}
 
-			//first index of element that has no value assigned
-			int X = getIndexIfFirst0InASN(asn);
-
-			ArrayList<ArrayList<Integer>> Dold = getCopyOfD(); //save D now, since we manipulate D
-
-			for (int V : D.get(X)) { //try out each value in the domain
-				if(AC_FC(X, V)) {
-					asn.add(X,V); //asn[X] <- V : try value V
-					ArrayList R = FC(asn);
-					if(R != null) {
-						return R;
-					}
-					asn.add(X,0); //asn[X] <- 0 : set it back
-					D = Dold; //set it back
-				}
-				else D = Dold;
-			}
-			return null;//failure
-		}
-
-		private Integer getIndexIfFirst0InASN(ArrayList<Integer> asn) {
-			for (int i = 0; i < asn.size(); i++) {
-				if(asn.get(i) == 0) return i;
-			}
-			return 0;
-		}
 		
 	
 		//------------------------------------------------------------------
