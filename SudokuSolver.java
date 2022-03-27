@@ -29,7 +29,17 @@ public class SudokuSolver implements ISudokuSolver {
 		//Initialize each D[X]...
 		InitializeD();
 
+		int[][] easy   = {{0, 3, 0, 0, 8, 0, 0, 0, 6},
+              {5, 0, 0, 2, 9, 4, 7, 1, 0},
+              {0, 0, 0, 3, 0, 0, 5, 0, 0},
+              {0, 0, 5, 0, 1, 0, 8, 0, 4},
+              {4, 2, 0, 8, 0, 5, 0, 3, 9},
+              {1, 0, 8, 0, 3, 0, 6, 0, 0},
+              {0, 0, 3, 0, 0, 7, 0, 0, 0},
+              {0, 4, 1, 6, 5, 3, 0, 0, 2},
+              {2, 0, 0, 0, 4, 0, 0, 6, 0}};
 
+		puzzle = easy;
 		
 	}
 
@@ -51,14 +61,41 @@ public class SudokuSolver implements ISudokuSolver {
 	public boolean solve() {
 		System.out.println("START!");
 		ArrayList<Integer> asn = GetAssignment(puzzle);
+
+		deleteInDomainsINIT(asn); 
 		
 		//INITIAL_FC
-		INITIAL_FC(asn); //returns true if asn is consistent afterwards
+		if (!INITIAL_FC(asn)) {
+			System.out.println("Not ac after init");
+			return false; //returns true if asn is consistent afterwards, if not, then the sudoku can not be solved
+		}
 
 		//FC
-		FC(asn);
+		ArrayList<Integer> fc = FC(asn);
+		if(FCisSucceeded(fc)) {
+			System.out.println("EEND!");
+			return true;
+		}
+
+		//FIND OUT WHAT AN ASN IS, AND HOW TO LOOP OG CONTINUE DOING FC OR RETURN FALSE???
 		System.out.println("END!");
-		return true;
+		return false;
+	}
+
+	private boolean FCisSucceeded(ArrayList<Integer> fc) {
+		return fc != null;
+	}
+
+	//Since there is all values in the domain - also the domains for the variable that are given in the init sudoku, we delete everything from the domain except the value that are already given
+	private void deleteInDomainsINIT(ArrayList<Integer> asn) {
+		for (int i = 0; i < asn.size(); i++) {
+			int value = asn.get(i);
+			if (value != 0) { //if the value is set
+				D.get(i).clear();
+				D.get(i).add(value);
+			}
+
+		}
 	}
 
 
@@ -78,9 +115,34 @@ public class SudokuSolver implements ISudokuSolver {
 		return result;
 	}
 
+	private ArrayList<ArrayList<Integer>> getCopy(ArrayList<ArrayList<Integer>> current) {
+		ArrayList<ArrayList<Integer>> result = new ArrayList<>(current.size());
+
+		for (ArrayList<Integer> arrayList : current) {
+			ArrayList<Integer> newArrayList = new ArrayList<>(arrayList.size());
+			newArrayList.addAll(arrayList);
+			result.add(newArrayList);
+		}
+		
+		return result;
+	}
+
 		//---------------------------------------------------------------------------------
 		//YOUR TASK:  Implement FC(asn)
 		//---------------------------------------------------------------------------------
+
+		
+		//---------------------------------------------------------------------------------
+		// CODE SUPPORT FOR IMPLEMENTING FC(asn)
+		//
+		// It is possible to implement FC(asn) by using only AC_FC function from below.
+		// 
+		// If you have time, I strongly reccomend that you implement AC_FC and REVISE from scratch
+		// using only implementation of CONSISTENT algorithm and general utility functions. In my opinion
+		// by doing this, you will gain much more from this exercise.
+		//
+		//---------------------------------------------------------------------------------
+		
 		public ArrayList FC(ArrayList<Integer> asn) {
 			if (!asn.contains(0)) {
 				return asn;
@@ -103,8 +165,6 @@ public class SudokuSolver implements ISudokuSolver {
 				}
 				else D = Dold;
 			}
-			
-
 			return null;//failure
 		}
 
@@ -114,21 +174,6 @@ public class SudokuSolver implements ISudokuSolver {
 			}
 			return 0;
 		}
-
-	
-
-		
-		//---------------------------------------------------------------------------------
-		// CODE SUPPORT FOR IMPLEMENTING FC(asn)
-		//
-		// It is possible to implement FC(asn) by using only AC_FC function from below.
-		// 
-		// If you have time, I strongly reccomend that you implement AC_FC and REVISE from scratch
-		// using only implementation of CONSISTENT algorithm and general utility functions. In my opinion
-		// by doing this, you will gain much more from this exercise.
-		//
-		//---------------------------------------------------------------------------------
-		
 		
 	
 		//------------------------------------------------------------------
